@@ -77,7 +77,7 @@ server.get('/api/films/:id', async (req, res) =>{
 
         res.statusCode = 200;
         res.json(film.data());
-        
+
         }
 
     } catch (e) {
@@ -88,7 +88,6 @@ server.get('/api/films/:id', async (req, res) =>{
     }
 })
   
-
 
 //Initialiser les données films
 server.post('/api/films/initialiser',(req,res)=>{
@@ -103,7 +102,32 @@ server.post('/api/films/initialiser',(req,res)=>{
     res.json({ message : 'La base de donnée a été initialisée avec les films.' });
 });
 
+//REQUÊTE POST  
+server.post('/api/films', async (req, res)=>{
 
+    try {
+        const film = req.body;
+        // console.log(test);
+
+        //validation des données
+        if(film.titre == undefined || film.genres == undefined || film.description == undefined || film.annee == undefined || film.realisation == undefined || film.titreVignette == undefined ) {
+
+            res.statusCode = 400;
+            return res.json({ message: 'Veuillez remplir les informations.' });
+        }
+
+        const newFilm = await db.collection('films').add(film);
+
+    res.statusCode = 201;
+    res.json({ message : 'Le film a été ajoutée', id: newFilm.id, donnees: film});
+
+    } catch (e) {
+
+        res.statusCode = 500;
+        res.json({ message: 'Erreur lors de l\'ajout du film' });
+
+    }
+});
 
 // //Initialiser les données utilisateur
 // server.post('/api/utilisateur/initialiser',(req,res)=>{
