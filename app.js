@@ -23,16 +23,18 @@ server.use(express.static(path.join(__dirname, 'public')));
 server.use(express.json());
 
 //point d'accès
-server.get('/films', async (req, res)=>{
+//Récupérer tous les films 
+server.get('/api/films', async (req, res)=>{
     
     try {    
 
     //pour mettre la req dans le url
     console.log(req.query);
-    const direction = req.query['order-direction'];  
-    const limit = +req.query.limit || 50;  
+    const direction = req.query['ordre'] || 'asc';  
+    const tri = req.query['tri'] || 'titre';
+    
 
-    const donneesRef = await db.collection('films').orderBy('user', direction).limit(limit).get(); 
+    const donneesRef = await db.collection('films').orderBy(tri, direction).get(); 
     const donneesFinale = [];
     
     donneesRef.forEach((doc)=>{
@@ -47,11 +49,75 @@ server.get('/films', async (req, res)=>{
     } catch (e) {
 
         res.statusCode = 500;
-        //res.json arrete ma requête 
         res.json({ message: 'Erreur serveur' });
     }
 
 });
+
+
+/**
+ * @method GET
+ * @param id 
+ * Permet d'accéder à un film selon son id
+ */
+server.get('/api/films/:id', async (req, res) =>{
+
+    try {
+        
+        const id = req.params.id;
+        
+        const film = await db.collection('films').doc(id).get();
+
+        if(!film.exists) {
+    
+            res.statusCode = 404;
+            res.json({ message: 'Film non trouvé' });
+
+        } else {
+
+        res.statusCode = 200;
+        res.json(film.data());
+        
+        }
+
+    } catch (e) {
+
+        res.statusCode = 500;
+        res.json({message:'Erreur lors de la récupération du film'})
+
+    }
+})
+  
+
+
+//Initialiser les données films
+server.post('/api/films/initialiser',(req,res)=>{
+   
+    const donneesTest = require('./data/filmsTest.js');
+
+    donneesTest.forEach(async(element)=>{
+        await db.collection('films').add(element);
+    });
+
+    res.statusCode = 200;
+    res.json({ message : 'La base de donnée a été initialisée avec les films.' });
+});
+
+
+
+// //Initialiser les données utilisateur
+// server.post('/api/utilisateur/initialiser',(req,res)=>{
+   
+//     const donneesTest = require('./data/utilisateurTest.js');
+
+//     donneesTest.forEach(async(element)=>{
+//         await db.collection('films').add(element);
+//     });
+
+//     res.statusCode = 200;
+//     res.json({ message : 'La base de donnée a été initialisée avec les utilisateurs.' });
+// });
+
 
 
 
