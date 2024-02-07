@@ -132,6 +132,7 @@ server.post('/api/films', async (req, res)=>{
         const film = req.body;
         // console.log(test);
 
+        //TODO: ajouter l'entité commentaires, tableau de données
         //validation des données
         if(film.titre == undefined || film.genres == undefined || film.description == undefined || film.annee == undefined || film.realisation == undefined || film.titreVignette == undefined ) {
 
@@ -181,7 +182,7 @@ server.post('/api/utilisateurs/inscription', async (req, res)=>{
 
         const newUtilisateur = await db.collection('utilisateurs').add(utilisateur);
 
-    res.statusCode = 201;
+    res.statusCode = 200;
     res.json({ message : 'L\'utilisateur a été ajouté', id: newUtilisateur.id});
 
     } catch (e) {
