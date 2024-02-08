@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const mustacheExpress = require('mustache-express');
 const db = require('./config/db.js');
+const { check, validationResult } = require('express-validator');
 
 //configurer la variable env pour protéger les info d'environnement
 const dotenv = require('dotenv');
@@ -133,6 +134,7 @@ server.post('/api/films', async (req, res)=>{
         // console.log(test);
 
         //TODO: ajouter l'entité commentaires, tableau de données
+        //TODO: utiliser exists pour vérifier si le champ (la clé) a été mis 
         //validation des données
         if(film.titre == undefined || film.genres == undefined || film.description == undefined || film.annee == undefined || film.realisation == undefined || film.titreVignette == undefined ) {
 
@@ -157,33 +159,49 @@ server.post('/api/films', async (req, res)=>{
  * @method POST
  * Permet d'ajouter un utilisateur / inscrire un utilisateur
  */
-server.post('/api/utilisateurs/inscription', async (req, res)=>{
+server.post('/api/utilisateurs/inscription', 
+[check('courriel').escape().trim().notEmpty().isEmail().normalizeEmail(),
+check('mdp').escape().trim().notEmpty().isLength({min:8, max:20}).isStrongPassword({
+    minLength: 8, 
+    minLowercase:1,
+    minUppercase: 1,
+    minNumbers: 1,
+    minSymbols: 1
+})],
+async (req, res)=>{
 
     try {
-        const utilisateur = req.body;
-        // console.log(test);
-
         //validation des données
-        if(utilisateur.courriel == undefined || utilisateur.mdp == undefined) {
+        const validation = validationResult(req);
 
+        if (validation.errors.length > 0) {
             res.statusCode = 400;
-            return res.json({ message: 'Veuillez remplir les informations.' });
+            return res.json({ message: 'Données non-conformes.' });
         }
-        
+
+        const {courriel, mdp} = req.body;
+
         //vérifier si l'utilisateur existe déjà
-        const utilisateurExiste = await db.collection('utilisateurs').where('courriel', '==', utilisateur.courriel).get();
+        const docRef = await db.collection('utilisateurs').where('courriel', '==', courriel).get();
 
-        if(utilisateurExiste.docs.length > 0) {
+        const utilisateurs = [];
 
+        docRef.forEach((doc)=>{
+            utilisateurs.push(doc.data());
+        });
+
+        if (utilisateurs.length > 0) {
             res.statusCode = 400;
-            return res.json({ message: 'L\'utilisateur existe déjà' });
+            return res.json({ message: 'Ce courriel existe déjà.' }); 
         }
 
+        const newUtilisateur = { courriel, mdp };
+        await db.collection('utilisateurs').add(newUtilisateur);
 
-        const newUtilisateur = await db.collection('utilisateurs').add(utilisateur);
+        delete newUtilisateur.mdp;
 
-    res.statusCode = 200;
-    res.json({ message : 'L\'utilisateur a été ajouté', id: newUtilisateur.id});
+        res.statusCode = 200;
+        res.json({ message : 'L\'utilisateur a été ajouté', newUtilisateur: newUtilisateur});
 
     } catch (e) {
 
@@ -198,30 +216,46 @@ server.post('/api/utilisateurs/inscription', async (req, res)=>{
  * @method POST
  * Permet la connexion d'un utilisateur
  */
-server.post('/api/utilisateurs/connexion', async (req, res)=>{
+server.post('/api/utilisateurs/connexion',
+[check('courriel').escape().trim().notEmpty(),
+check('mdp').escape().trim().notEmpty()],
+
+async (req, res)=>{
+    const validation = validationResult(req);
+    if  (validation.errors.lenght > 0) {
+        res.statusCode = 400;
+        return res.json({ message: 'Veuillez remplir les champs.' });
+    }
 
   try {
 
     const {courriel, mdp} = req.body;
 
     //vérifier si le courriel de l'utilisateur existe dans la DB
-    const utilisateurConnexion = await db.collection('utilisateurs').where('courriel', '==', courriel).get();
+    const docRef = await db.collection('utilisateurs').where('courriel', '==', courriel).get();
+
+    const utilisateurs = [];
+
+    docRef.forEach((doc)=>{
+        utilisateurs.push(doc.data());
+    });
 
     //comparer le mdp avec la DB
-    if(utilisateurConnexion.docs.length > 0) {
+    if(utilisateurs.length > 0) {
 
         //recuperer l'utilisateur connecté
-        const utilisateur = utilisateurConnexion.docs[0].data();
+        const utilisateurAValider = utilisateurs[0];
 
-        if(mdp == utilisateur.mdp) {
-
-            res.statusCode = 200;
-            res.json({ message: 'Connexion réussie', courriel: utilisateur.courriel});
+        if(mdp == utilisateurAValider.mdp) {
+        //on retourne les infos de l'utilisateur sans le mot de passe
+        delete utilisateurAValider.mdp;
+        res.statusCode = 200;
+        res.json({ message:'Vous êtes connecté', utilisateurAValider});
 
         } else {
 
             res.statusCode = 400;
-            res.json({ message: 'Mot de passe incorrect' });
+            res.json({ message: 'Mot de passe incorrect.' });
 
         }
 
