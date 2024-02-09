@@ -232,6 +232,7 @@ async (req, res)=>{
   try {
 
     const validation = validationResult(req);
+
     if  (validation.errors.length > 0) {
         res.statusCode = 400;
         return res.json({ message: 'Veuillez remplir les champs.' });
@@ -292,26 +293,29 @@ async (req, res)=>{
  * Permet de modifier un film
  */
 server.put('/api/films/:id', 
-[check('titre').escape().trim().notEmpty().isString().exists(),
-check('genres').escape().trim().notEmpty().isArray().exists(),
-check('description').escape().trim().notEmpty().isString().exists(),
-check('annee').escape().trim().notEmpty().isString().exists(),
-check('realisation').escape().trim().notEmpty().isString().exists(),
-check('titreVignette').escape().trim().notEmpty().isString().exists(),
-check('commentaires').escape().trim().notEmpty().isString().isLength({max:200}).exists()], 
+[check('titre').escape().trim().notEmpty().isString(),
+check('genres').escape().trim().notEmpty().isArray(),
+check('description').escape().trim().notEmpty().isString(),
+check('annee').escape().trim().notEmpty().isString(),
+check('realisation').escape().trim().notEmpty().isString(),
+check('titreVignette').escape().trim().notEmpty().isString(),
+check('commentaires').escape().trim().notEmpty().isString().isLength({max:200})], 
 async (req, res)=>{
-    //TODO: validation des données
+
     try {
+
+        //validation des données
+        const validation = validationResult(req);
+
+        if (validation.errors.length > 0) {
+
+            res.statusCode = 400;
+            return res.json({ message: 'Données non-conformes.' });
+        }
 
         const id = req.params.id;
         const filmModifie = req.body;
 
-       
-        if(filmModifie.titre == undefined || filmModifie.genres == undefined || filmModifie.description == undefined || filmModifie.annee == undefined || filmModifie.realisation == undefined || filmModifie.titreVignette == undefined ) {
-
-            res.statusCode = 400;
-            return res.json({ message: 'Veuillez remplir les informations.' });
-        }
 
         await db.collection('films').doc(id).update(filmModifie);
 
