@@ -127,20 +127,27 @@ server.post('/api/utilisateurs/initialiser',(req,res)=>{
  * @method POST
  * Permet d'ajouter un film
  */
-server.post('/api/films', async (req, res)=>{
-
+server.post('/api/films', 
+[check('titre').escape().trim().notEmpty().isString().exists(),
+check('genres').escape().trim().notEmpty().isArray().exists(),
+check('description').escape().trim().notEmpty().isString().exists(),
+check('annee').escape().trim().notEmpty().isString().exists(),
+check('realisation').escape().trim().notEmpty().isString().exists(),
+check('titreVignette').escape().trim().notEmpty().isString().exists(),
+check('commentaires').escape().trim().notEmpty().isString().isLength({max:200}).exists()],
+ async (req, res)=>{
+    
     try {
-        const film = req.body;
-        // console.log(test);
-
-        //TODO: ajouter l'entité commentaires, tableau de données
-        //TODO: utiliser exists pour vérifier si le champ (la clé) a été mis 
         //validation des données
-        if(film.titre == undefined || film.genres == undefined || film.description == undefined || film.annee == undefined || film.realisation == undefined || film.titreVignette == undefined ) {
+        const validation = validationResult(req);
+        if(validation.errors.length > 0) {
 
             res.statusCode = 400;
-            return res.json({ message: 'Veuillez remplir les informations.' });
+            return res.json({ message: 'Données non-conformes.' });
         }
+
+
+        const film = req.body;
 
         const newFilm = await db.collection('films').add(film);
 
@@ -160,14 +167,14 @@ server.post('/api/films', async (req, res)=>{
  * Permet d'ajouter un utilisateur / inscrire un utilisateur
  */
 server.post('/api/utilisateurs/inscription', 
-[check('courriel').escape().trim().notEmpty().isEmail().normalizeEmail(),
+[check('courriel').escape().trim().notEmpty().isEmail().normalizeEmail().exists(),
 check('mdp').escape().trim().notEmpty().isLength({min:8, max:20}).isStrongPassword({
     minLength: 8, 
     minLowercase:1,
     minUppercase: 1,
     minNumbers: 1,
     minSymbols: 1
-})],
+}).exists()],
 async (req, res)=>{
 
     try {
@@ -217,17 +224,19 @@ async (req, res)=>{
  * Permet la connexion d'un utilisateur
  */
 server.post('/api/utilisateurs/connexion',
-[check('courriel').escape().trim().notEmpty(),
-check('mdp').escape().trim().notEmpty()],
+[check('courriel').escape().trim().notEmpty().exists(),
+check('mdp').escape().trim().notEmpty().exists()],
 
 async (req, res)=>{
+
+  try {
+
     const validation = validationResult(req);
-    if  (validation.errors.lenght > 0) {
+    if  (validation.errors.length > 0) {
         res.statusCode = 400;
         return res.json({ message: 'Veuillez remplir les champs.' });
     }
 
-  try {
 
     const {courriel, mdp} = req.body;
 
@@ -282,8 +291,16 @@ async (req, res)=>{
  * @method PUT
  * Permet de modifier un film
  */
-server.put('/api/films/:id', async (req, res)=>{
-
+server.put('/api/films/:id', 
+[check('titre').escape().trim().notEmpty().isString().exists(),
+check('genres').escape().trim().notEmpty().isArray().exists(),
+check('description').escape().trim().notEmpty().isString().exists(),
+check('annee').escape().trim().notEmpty().isString().exists(),
+check('realisation').escape().trim().notEmpty().isString().exists(),
+check('titreVignette').escape().trim().notEmpty().isString().exists(),
+check('commentaires').escape().trim().notEmpty().isString().isLength({max:200}).exists()], 
+async (req, res)=>{
+    //TODO: validation des données
     try {
 
         const id = req.params.id;
@@ -331,10 +348,6 @@ server.delete('/api/films/:id', async (req, res)=>{
 
     }
 });
-
-
-
-
 
 
 
