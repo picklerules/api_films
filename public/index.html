@@ -1,12 +1,99 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page d'accueil</title>
+    <title>Documentation API de Films</title>
     <link rel="stylesheet" href="assets/css/styles.css">
+    
 </head>
 <body>
-    <h1>FILMS</h1>
+    <h1>Documentation API de Films</h1>
+    <p>
+        Cette API vous permet de consulter, d'ajouter, de modifier et de supprimer des films, ainsi que de gérer les inscriptions et les connexions des utilisateurs dans la base de données.
+    </p>
+
+    <h2>Point d'accès</h2>
+    
+    <h3>Récupérer tous les films</h3>
+    <ul>
+        <li><strong>GET</strong></li>
+        <li><strong>URL</strong>: <code>/api/films</code></li>
+        <li><strong>Paramètres URL</strong>: <code>ordre</code> (optionnel), <code>tri</code> (optionnel), Ex: <code>/api/films?tri=annee&ordre=asc</code> </li>
+        <li><strong>Réponse</strong>: Liste des films.</li>
+    </ul>
+
+    <h3>Récupérer un film par ID</h3>
+    <ul>
+        <li><strong>GET</strong></li>
+        <li><strong>URL</strong>: <code>/api/films/:id</code></li>
+        <li><strong>Réponse</strong>: Détails du film demandé selon son id.</li>
+    </ul>
+
+    <h3>Ajouter un film</h3>
+    <ul>
+        <li><strong>Méthode HTTP</strong>: POST</li>
+        <li><strong>URL</strong>: <code>/api/films</code></li>
+        <li><strong>Corps de la requête</strong>:
+            <pre><code>{
+        "titre": "Alien - Le 8ème passager",
+        "genres": ["Horreur", "Science-fiction"],
+        "description": "Texte",
+        "annee": "1979",
+        "realisation": "Ridley Scott",
+        "titreVignette": "alienle8emepassager.jpg",
+        "commentaires": "Texte"
+    }</code></pre>
+        </li>
+        <li><strong>Réponse</strong>: <code>{ message : 'Le film a été ajouté', id: newFilm.id, donnees: film}</code></li>
+    </ul>
+    
+
+    <h3>Modifier un film</h3>
+    <ul>
+        <li><strong>PUT</strong></li>
+        <li><strong>URL</strong>: <code>/api/films/:id</code></li>
+        <li><strong>Corps de la requête</strong>: Attributs du film à modifier. 
+             <pre><code>Ex :
+        {
+            "genres": ["Drame", "Science-fiction"],
+            "annee": "1980"
+        }</code></pre></li>
+        <li><strong>Réponse</strong>: <code>{ message : 'Le film a été modifié' }</code></li>
+    </ul>
+
+    <h3>Supprimer un film</h3>
+    <ul>
+        <li><strong>DELETE</strong></li>
+        <li><strong>URL</strong>: <code>/api/films/:id</code></li>
+        <li><strong>Réponse</strong>: <code>{ message : 'Le film a été supprimée' }</code></li>
+    </ul>
+
+    <h2>Authentification et gestion des utilisateurs</h2>
+    <h3>Inscription d'un utilisateur</h3>
+    <ul>
+        <li><strong>POST</strong></li>
+        <li><strong>URL</strong>: <code>/api/utilisateurs/inscription</code></li>
+        <li><strong>Corps de la requête</strong>:
+            <pre><code>{
+        "courriel": "exemple@domaine.com",
+        "mdp": "MotDePasse#1234"
+    }</code></pre>
+        </li>
+        <li><strong>Réponse</strong>: <code>{ message: "L'utilisateur a été ajouté", newUtilisateur: {courriel: "banane@email.com"} }</code></li>
+    </ul>
+    
+    <h3>Connexion d'un utilisateur</h3>
+    <ul>
+        <li><strong>POST</strong></li>
+        <li><strong>URL</strong>: <code>/api/utilisateurs/connexion</code></li>
+        <li><strong>Corps de la requête</strong>:
+            <pre><code>{
+        "courriel": "exemple@domaine.com",
+        "mdp": "MotDePasse#1234"
+    }</code></pre>
+        </li>
+        <li><strong>Réponse</strong>: <code>{ message: "Vous êtes connecté", utilisateurAValider: { courriel: "banane@email.com" } }</code></li>
+    </ul>
+    
 </body>
 </html>

@@ -94,33 +94,33 @@ server.get('/api/films/:id', async (req, res) =>{
  * @method POST
  * Permet d'initialiser la base de donnée
  */
-server.post('/api/films/initialiser',(req,res)=>{
+// server.post('/api/films/initialiser',(req,res)=>{
    
-    const donneesTest = require('./data/filmsTest.js');
+//     const donneesTest = require('./data/filmsTest.js');
 
-    donneesTest.forEach(async(element)=>{
-        await db.collection('films').add(element);
-    });
+//     donneesTest.forEach(async(element)=>{
+//         await db.collection('films').add(element);
+//     });
 
-    res.statusCode = 200;
-    res.json({ message : 'La base de donnée a été initialisée avec les films.' });
-});
+//     res.statusCode = 200;
+//     res.json({ message : 'La base de donnée a été initialisée avec les films.' });
+// });
 
-/**
- * @method POST 
- * Permet d'initialiser la base de donnée
- */
-server.post('/api/utilisateurs/initialiser',(req,res)=>{
+// /**
+//  * @method POST 
+//  * Permet d'initialiser la base de donnée
+//  */
+// server.post('/api/utilisateurs/initialiser',(req,res)=>{
    
-    const donneesTest = require('./data/utilisateurTest.js');
+//     const donneesTest = require('./data/utilisateurTest.js');
 
-    donneesTest.forEach(async(element)=>{
-        await db.collection('utilisateurs').add(element);
-    });
+//     donneesTest.forEach(async(element)=>{
+//         await db.collection('utilisateurs').add(element);
+//     });
 
-    res.statusCode = 200;
-    res.json({ message : 'La base de donnée a été initialisée avec les utilisateurs.' });
-});
+//     res.statusCode = 200;
+//     res.json({ message : 'La base de donnée a été initialisée avec les utilisateurs.' });
+// });
 
 
 /**
@@ -143,7 +143,7 @@ check('commentaires').escape().trim().notEmpty().isString().isLength({max:200}).
         if(validation.errors.length > 0) {
 
             res.statusCode = 400;
-            return res.json({ message: 'Données non-conformes.' });
+            return res.json({ message: 'Données non-conformes' });
         }
 
 
@@ -183,7 +183,7 @@ async (req, res)=>{
 
         if (validation.errors.length > 0) {
             res.statusCode = 400;
-            return res.json({ message: 'Données non-conformes.' });
+            return res.json({ message: 'Données non-conformes' });
         }
 
         const {courriel, mdp} = req.body;
@@ -199,7 +199,7 @@ async (req, res)=>{
 
         if (utilisateurs.length > 0) {
             res.statusCode = 400;
-            return res.json({ message: 'Ce courriel existe déjà.' }); 
+            return res.json({ message: 'Ce courriel existe déjà' }); 
         }
 
         const newUtilisateur = { courriel, mdp };
@@ -235,7 +235,7 @@ async (req, res)=>{
 
     if  (validation.errors.length > 0) {
         res.statusCode = 400;
-        return res.json({ message: 'Veuillez remplir les champs.' });
+        return res.json({ message: 'Veuillez remplir les champs' });
     }
 
 
@@ -265,7 +265,7 @@ async (req, res)=>{
         } else {
 
             res.statusCode = 400;
-            res.json({ message: 'Mot de passe incorrect.' });
+            res.json({ message: 'Mot de passe incorrect' });
 
         }
 
@@ -293,13 +293,13 @@ async (req, res)=>{
  * Permet de modifier un film
  */
 server.put('/api/films/:id', 
-[check('titre').escape().trim().notEmpty().isString(),
-check('genres').escape().trim().notEmpty().isArray(),
-check('description').escape().trim().notEmpty().isString(),
-check('annee').escape().trim().notEmpty().isString(),
-check('realisation').escape().trim().notEmpty().isString(),
-check('titreVignette').escape().trim().notEmpty().isString(),
-check('commentaires').escape().trim().notEmpty().isString().isLength({max:200})], 
+[check('titre').optional().escape().trim().notEmpty().isString(),
+check('genres').optional().escape().trim().notEmpty().isArray(),
+check('description').optional().escape().trim().notEmpty().isString(),
+check('annee').optional().escape().trim().notEmpty().isString(),
+check('realisation').optional().escape().trim().notEmpty().isString(),
+check('titreVignette').optional().escape().trim().notEmpty().isString(),
+check('commentaires').optional().escape().trim().notEmpty().isString().isLength({max:200})], 
 async (req, res)=>{
 
     try {
@@ -310,7 +310,7 @@ async (req, res)=>{
         if (validation.errors.length > 0) {
 
             res.statusCode = 400;
-            return res.json({ message: 'Données non-conformes.' });
+            return res.json({ message: 'Données non-conformes' });
         }
 
         const id = req.params.id;
