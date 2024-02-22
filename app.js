@@ -2,7 +2,7 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const mustacheExpress = require("mustache-express");
-const cors = require('cors');
+const cors = require("cors");
 const db = require("./config/db.js");
 const { check, validationResult } = require("express-validator");
 
@@ -13,7 +13,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const server = express();
-app.use(cors());
+server.use(cors());
 ///////////////////////
 
 //definir le type de view
@@ -38,14 +38,16 @@ server.get("/api/films", async (req, res) => {
       .collection("films")
       .orderBy(tri, direction)
       .get();
-    const donneesFinale = [];
+    const films = [];
 
     donneesRef.forEach((doc) => {
-      donneesFinale.push(doc.data());
+      const filmAvecId = doc.data();
+      filmAvecId.id = doc.id;
+      films.push(filmAvecId);
     });
 
     res.statusCode = 200;
-    res.json(donneesFinale);
+    res.json(films);
   } catch (e) {
     res.statusCode = 500;
     res.json({ message: "Erreur serveur" });
