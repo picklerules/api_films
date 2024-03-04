@@ -81,18 +81,18 @@ server.get("/api/films/:id", async (req, res) => {
 /**
  * @method POST
  * Permet d'initialiser la base de donnée
- */
-// server.post('/api/films/initialiser',(req,res)=>{
+//  */
+server.post('/api/films/initialiser',(req,res)=>{
 
-//     const donneesTest = require('./data/filmsTest.js');
+    const donneesTest = require('./data/filmsTest.js');
 
-//     donneesTest.forEach(async(element)=>{
-//         await db.collection('films').add(element);
-//     });
+    donneesTest.forEach(async(element)=>{
+        await db.collection('films').add(element);
+    });
 
-//     res.statusCode = 200;
-//     res.json({ message : 'La base de donnée a été initialisée avec les films.' });
-// });
+    res.statusCode = 200;
+    res.json({ message : 'La base de donnée a été initialisée avec les films.' });
+});
 
 // /**
 //  * @method POST
@@ -123,13 +123,6 @@ server.post(
     check("annee").escape().trim().notEmpty().isString().exists(),
     check("realisation").escape().trim().notEmpty().isString().exists(),
     check("titreVignette").escape().trim().notEmpty().isString().exists(),
-    check("commentaires")
-      .escape()
-      .trim()
-      .notEmpty()
-      .isString()
-      .isLength({ max: 200 })
-      .exists(),
   ],
   async (req, res) => {
     try {
