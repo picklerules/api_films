@@ -296,13 +296,7 @@ server.put(
     check("annee").optional().escape().trim().notEmpty().isString(),
     check("realisation").optional().escape().trim().notEmpty().isString(),
     check("titreVignette").optional().escape().trim().notEmpty().isString(),
-    check("commentaires")
-      .optional()
-      .escape()
-      .trim()
-      .notEmpty()
-      .isString()
-      .isLength({ max: 200 }),
+    check("commentaires").optional().escape().trim().notEmpty().isArray(),
   ],
   async (req, res) => {
     try {
